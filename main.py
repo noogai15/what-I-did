@@ -1,31 +1,54 @@
-import sys
 import datetime
+import sys
 
-def generate_teams_message(finished_tasks, plan_tasks):
-    bullet_point = "•"
+# Set the weekdays on which you start and end your work week
+# 0 => Mon;
+# 1 => Tue
+# 2 => Wed
+# 3 => Thu
+# 4 => Fri
+# 5 => Sat
+# 6 => Sun
+
+weekday_first = 0
+weekday_last = 1
+bullet_point = "•"
+
+
+def create_message(finished_tasks, plan_tasks):
     today = datetime.date.today()
     today_heading = "Heute ({:%d.%m})".format(today)
-    if today.weekday() == 2:  # Wednesday
-        tomorrow = today + datetime.timedelta(days=5)  # Next Monday
-        plan_heading = "Montag ({:%d.%m})".format(tomorrow)
+    if today.weekday() == weekday_last:
+        delta = weekday_first - today.weekday()  # calculate time until weekday_first
+        if delta <= 0:
+            delta += 7
+        next_workday = today + datetime.timedelta(days=delta)
+        plan_heading = f"{next_workday.strftime('%A')} ({next_workday:%d.%m})"
     else:
-        tomorrow = today + datetime.timedelta(days=1)
-        plan_heading = "Morgen ({:%d.%m})".format(tomorrow)
+        next_workday = today + datetime.timedelta(days=1)
+        plan_heading = f"Tomorrow ({next_workday:%d.%m})"
 
-    message = "{}:\n".format(today_heading)
-    message += "{} {}\n".format(bullet_point, ("\n{} ".format(bullet_point)).join(finished_tasks))
-    message += "\n{}:\n".format(plan_heading)
-    message += "{} {}\n".format(bullet_point, ("\n{} ".format(bullet_point)).join(plan_tasks))
+    finished_tasks_str = f"\n{bullet_point} ".join(finished_tasks)
+    plan_tasks_str = f"\n{bullet_point} ".join(plan_tasks)
+
+    message = (
+        f"Heute ({today:%d.%m}):\n{bullet_point} {finished_tasks_str}\n\n"
+        f"{plan_heading}:\n{bullet_point} {plan_tasks_str}\n"
+    )
     return message
 
-if __name__ == "__main__":
+
+def main():
     if len(sys.argv) < 3:
-        print("Usage: python teams_message_generator.py <finished_tasks> <plan_tasks>")
+        print("Usage: python main.py <finished_tasks> <plan_tasks>")
         sys.exit(1)
 
     finished_tasks = sys.argv[1].split(",")
     plan_tasks = sys.argv[2].split(",")
 
-    teams_message = generate_teams_message(finished_tasks, plan_tasks)
+    teams_message = create_message(finished_tasks, plan_tasks)
     print(teams_message)
 
+
+if __name__ == "__main__":
+    main()
