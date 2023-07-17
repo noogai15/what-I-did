@@ -10,44 +10,43 @@ import sys
 # 5 => Sat
 # 6 => Sun
 
-weekday_first = 0
-weekday_last = 1
-bullet_point = "•"
+wk_start = 0
+wk_end = 1
+bullet = "•"
 
 
-def create_message(finished_tasks, plan_tasks):
+def create_message(done_tasks, todo_tasks):
     today = datetime.date.today()
-    today_heading = "Heute ({:%d.%m})".format(today)
-    if today.weekday() == weekday_last:
-        delta = weekday_first - today.weekday()  # calculate time until weekday_first
+    today_head = f"Today ({today:%d.%m})"
+    if today.weekday() == wk_end:
+        delta = wk_start - today.weekday()
         if delta <= 0:
             delta += 7
-        next_workday = today + datetime.timedelta(days=delta)
-        plan_heading = f"{next_workday.strftime('%A')} ({next_workday:%d.%m})"
+        next_day = today + datetime.timedelta(days=delta)
+        plan_head = f"{next_day.strftime('%A')} ({next_day:%d.%m})"
     else:
-        next_workday = today + datetime.timedelta(days=1)
-        plan_heading = f"Tomorrow ({next_workday:%d.%m})"
+        next_day = today + datetime.timedelta(days=1)
+        plan_head = f"Tomorrow ({next_day:%d.%m})"
 
-    finished_tasks_str = f"\n{bullet_point} ".join(finished_tasks)
-    plan_tasks_str = f"\n{bullet_point} ".join(plan_tasks)
+    done_str = f"\n{bullet} ".join(done_tasks)
+    todo_str = f"\n{bullet} ".join(todo_tasks)
 
-    message = (
-        f"Heute ({today:%d.%m}):\n{bullet_point} {finished_tasks_str}\n\n"
-        f"{plan_heading}:\n{bullet_point} {plan_tasks_str}\n"
+    msg = (
+        f"{today_head}:\n{bullet} {done_str}\n\n" f"{plan_head}:\n{bullet} {todo_str}\n"
     )
-    return message
+    return msg
 
 
 def main():
     if len(sys.argv) < 3:
-        print("Usage: python main.py <finished_tasks> <plan_tasks>")
+        print("Usage: python main.py <done_tasks> <todo_tasks>")
         sys.exit(1)
 
-    finished_tasks = sys.argv[1].split(",")
-    plan_tasks = sys.argv[2].split(",")
+    done_tasks = sys.argv[1].split(",")
+    todo_tasks = sys.argv[2].split(",")
 
-    teams_message = create_message(finished_tasks, plan_tasks)
-    print(teams_message)
+    msg = create_message(done_tasks, todo_tasks)
+    print(msg)
 
 
 if __name__ == "__main__":
